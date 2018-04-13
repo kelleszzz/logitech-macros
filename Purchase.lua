@@ -35,24 +35,24 @@ function OnEvent(event, arg)
 			if (CheckPositionValid(cancelSubstitution)==false) then positionValid=false end
 			if (positionValid==true) then
 				--开始点击
-				XMoveMouseToPosition(pressRefreshToken)
+				XMoveMouseToPosition(pressRefreshToken,XWaitLongTime)
 				XPressAndReleaseMouseButton(1)
 				XPressAndReleaseMouseButton(1)
-				XMoveMouseToPosition(pressWantedCategory)
+				XMoveMouseToPosition(pressWantedCategory,XWaitLongTime)
 				XPressAndReleaseMouseButton(1)
-				XMoveMouseToPosition(pressWantedItem)
+				XMoveMouseToPosition(pressWantedItem,XWaitShortTime)
 				XPressAndReleaseMouseButton(1)
-				XMoveMouseToPosition(pressBuyingItem)
+				XMoveMouseToPosition(pressBuyingItem,XWaitShortTime)
 				XPressAndReleaseMouseButton(1)
-				XMoveMouseToPosition(addNumber)
+				XMoveMouseToPosition(addNumber,XWaitShortTime)
 				for t=1,(buyingNumber-1) do
 					XPressAndReleaseMouseButton(1)
 				end
-				XMoveMouseToPosition(purchase)
+				XMoveMouseToPosition(purchase,XWaitShortTime)
 				XPressAndReleaseMouseButton(1)
-				XMoveMouseToPosition(purchaseConfirm)
+				XMoveMouseToPosition(purchaseConfirm,XWaitShortTime)
 				XPressAndReleaseMouseButton(1)	
-				XMoveMouseToPosition(cancelSubstitution)
+				XMoveMouseToPosition(cancelSubstitution,XWaitShortTime)
 				XPressAndReleaseMouseButton(1)	
 			else
 				XAbortMacro()
@@ -108,10 +108,18 @@ function OnEvent(event, arg)
 	end
 end
 
-function XMoveMouseToPosition(tab)
+function XWaitShortTime()
+	Sleep(XTimeShuffle())
+end
+
+function XWaitLongTime()
+	Sleep(XTimeShuffle()*5)
+end
+
+function XMoveMouseToPosition(tab,sleepFunc)
 	if tab==nil then return end
 	XMoveMouseTo(tab.px,tab.py)
-	Sleep(XTimeShuffle()*5)
+	sleepFunc()
 end
 
 function ResetPosition(tab)
@@ -131,7 +139,7 @@ end
 --↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓BASIC↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓--
 MIDDLE,BACKWARD,FORWARD=3,4,5
 abortButton=BACKWARD --为正数时,表示按下则停止;为负数时,表示放开则停止
-mRange=1000
+mRange=1200
 mSleep=5
 mRunning=false
 funcDoClear=nil
