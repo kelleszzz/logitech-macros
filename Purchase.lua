@@ -9,8 +9,19 @@ purchaseConfirm={px=42927,py=45067}
 cancelSubstitution={px=22744,py=44824}
 buyingNumber=3 --一次买3个
 status=nil
+--是否只完成快速购买流程
+quickBuying=false
 function OnEvent(event, arg)
 	--配置
+	
+	if quickBuying==true then
+		--快速购买
+		triggerArg=BACKWARD
+		abortButton=-BACKWARD
+	else
+		triggerArg=FORWARD
+		abortButton=BACKWARD
+	end
 	funcDoClear=function()
 		status=nil
 		--ResetPosition(pressWantedCategory)
@@ -21,7 +32,7 @@ function OnEvent(event, arg)
 		--ResetPosition(purchaseConfirm)
 	end
 	--逻辑
-	if (event == "MOUSE_BUTTON_PRESSED" and arg == FORWARD) then --当鼠标前进键按下时
+	if (event == "MOUSE_BUTTON_PRESSED" and arg == triggerArg) then --当鼠标前进键按下时
 		if XPlayMacro("Purchase")==false then return end
 		while mRunning==true do
 			positionValid=true
@@ -35,13 +46,15 @@ function OnEvent(event, arg)
 			if (CheckPositionValid(cancelSubstitution)==false) then positionValid=false end
 			if (positionValid==true) then
 				--开始点击
-				XMoveMouseToPosition(pressRefreshToken,XWaitLongTime)
-				XPressAndReleaseMouseButton(1)
-				XPressAndReleaseMouseButton(1)
-				XMoveMouseToPosition(pressWantedCategory,XWaitLongTime)
-				XPressAndReleaseMouseButton(1)
-				XMoveMouseToPosition(pressWantedItem,XWaitShortTime)
-				XPressAndReleaseMouseButton(1)
+				if quickBuying~=true then
+					XMoveMouseToPosition(pressRefreshToken,XWaitLongTime)
+					XPressAndReleaseMouseButton(1)
+					XPressAndReleaseMouseButton(1)
+					XMoveMouseToPosition(pressWantedCategory,XWaitLongTime)
+					XPressAndReleaseMouseButton(1)
+					XMoveMouseToPosition(pressWantedItem,XWaitShortTime)
+					XPressAndReleaseMouseButton(1)
+				end
 				XMoveMouseToPosition(pressBuyingItem,XWaitShortTime)
 				XPressAndReleaseMouseButton(1)
 				XMoveMouseToPosition(addNumber,XWaitShortTime)
@@ -138,7 +151,7 @@ end
 
 --↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓BASIC↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓--
 MIDDLE,BACKWARD,FORWARD=3,4,5
-abortButton=BACKWARD --为正数时,表示按下则停止;为负数时,表示放开则停止
+abortButton=nil --为正数时,表示按下则停止;为负数时,表示放开则停止
 mRange=1200
 mSleep=5
 mRunning=false
