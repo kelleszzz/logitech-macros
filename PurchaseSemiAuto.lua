@@ -1,5 +1,6 @@
 --刷新坐标点可定制,快速购买坐标点为全屏状态下的不可定制
 status=nil
+enableSwiftBuying=true
 skipBackwardOnce=false --按下前进键刷新时,如果再按下了后退键,后退键也会入队执行一次宏,现在需要将这次不必要的执行跳过
 function OnEvent(event, arg)
 	--配置
@@ -21,7 +22,7 @@ function OnEvent(event, arg)
 		end
 		XAbortMacro()
 	end
-	if (event == "MOUSE_BUTTON_PRESSED" and arg == BACKWARD) then --当鼠标返回键按下时
+	if (event == "MOUSE_BUTTON_PRESSED" and arg == BACKWARD and enableSwiftBuying==true) then --当鼠标返回键按下时
 		if skipBackwardOnce==true then
 			skipBackwardOnce=false
 			return

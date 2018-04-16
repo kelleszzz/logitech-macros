@@ -5,23 +5,39 @@ zhuQue={px=32067,py=32798}
 xuanWu={px=47606,py=32737}
 blankArea={px=32785,py=11115}
 status=nil
+enableSwiftBuying=true
+skipBackwardOnce=false --按下前进键刷新时,如果再按下了后退键,后退键也会入队执行一次宏,现在需要将这次不必要的执行跳过
 genericBuying=true --是否对所有碎片尝试购买,还是专注于购买一种碎片
 function OnEvent(event, arg)
 	--配置
+	abortButton=nil
 	funcDoClear=function()
 		status=nil
-		--ResetPosition(pressWantedCategory)
-		--ResetPosition(pressRefreshToken)
-		--ResetPosition(pressWantedItem)
-		--ResetPosition(pressBuyingItem)
-		--ResetPosition(purchase)
-		--ResetPosition(purchaseConfirm)
 	end
 	--逻辑
 	if (event == "MOUSE_BUTTON_PRESSED" and arg == FORWARD) then --当鼠标前进键按下时
 		if XPlayMacro("Purchase")==false then return end
+		--配置
+		abortButton=BACKWARD
+		funcDoClear=function()
+			status=nil
+			skipBackwardOnce=true
+		end
 		while mRunning==true do
 			PreBuying()
+			SwiftBuying()
+		end
+		XAbortMacro()
+	end
+	if (event == "MOUSE_BUTTON_PRESSED" and arg == BACKWARD and enableSwiftBuying==true) then --当鼠标返回键按下时
+		if skipBackwardOnce==true then
+			skipBackwardOnce=false
+			return
+		end
+		if XPlayMacro("Refresh")==false then return end
+		--配置
+		abortButton=-BACKWARD
+		while mRunning==true do
 			SwiftBuying()
 		end
 		XAbortMacro()
@@ -145,7 +161,7 @@ function SwiftBuying()
 end
 
 function XWaitMicroTime()
-	Sleep(XTimeShuffle()/3)
+	Sleep(XTimeShuffle()/4)
 end
 
 function XWaitShortTime()
@@ -180,7 +196,7 @@ end
 --↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑PURCHASEBASIC↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑--
 --↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓BASIC↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓--
 MIDDLE,BACKWARD,FORWARD=3,4,5
-abortButton=BACKWARD --为正数时,表示按下则停止;为负数时,表示放开则停止
+abortButton=nil --为正数时,表示按下则停止;为负数时,表示放开则停止
 mRange=1200
 mSleep=3
 mRunning=false

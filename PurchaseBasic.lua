@@ -35,7 +35,7 @@ function SwiftBuying()
 end
 
 function XWaitMicroTime()
-	Sleep(XTimeShuffle()/3)
+	Sleep(XTimeShuffle()/4)
 end
 
 function XWaitShortTime()
