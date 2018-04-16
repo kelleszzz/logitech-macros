@@ -1,27 +1,7 @@
-PRESS_WANTED_CATEGORY,PRESS_REFRESH_TOKEN,PRESS_WANTED_ITEM,PRESS_BUYING_ITEM,ADD_NUMBER,PURCHASE,PURCHASE_CONFIRM,CANCEL_SUBSTITUTION=1,2,3,4,5,6,7,8
-pressWantedCategory={px=9665,py=22898}
-pressRefreshToken={px=9801,py=30125}
-pressWantedItem={px=31623,py=23566}
-pressBuyingItem={px=31555,py=24052}
-addNumber={px=38658,py=32919}
-purchase={px=32750,py=45188}
-purchaseConfirm={px=42927,py=45067}
-cancelSubstitution={px=22744,py=44824}
-buyingNumber=3 --一次买3个
+--全部坐标点可定制
 status=nil
---是否只完成快速购买流程
-quickBuying=false
 function OnEvent(event, arg)
 	--配置
-	
-	if quickBuying==true then
-		--快速购买
-		triggerArg=BACKWARD
-		abortButton=-BACKWARD
-	else
-		triggerArg=FORWARD
-		abortButton=BACKWARD
-	end
 	funcDoClear=function()
 		status=nil
 		--ResetPosition(pressWantedCategory)
@@ -32,45 +12,11 @@ function OnEvent(event, arg)
 		--ResetPosition(purchaseConfirm)
 	end
 	--逻辑
-	if (event == "MOUSE_BUTTON_PRESSED" and arg == triggerArg) then --当鼠标前进键按下时
+	if (event == "MOUSE_BUTTON_PRESSED" and arg == FORWARD) then --当鼠标前进键按下时
 		if XPlayMacro("Purchase")==false then return end
 		while mRunning==true do
-			positionValid=true
-			if (CheckPositionValid(pressWantedCategory)==false) then possitionValid=false end
-			if (CheckPositionValid(pressRefreshToken)==false) then positionValid=false end
-			if (CheckPositionValid(pressWantedItem)==false) then positionValid=false end
-			if (CheckPositionValid(pressBuyingItem)==false) then positionValid=false end
-			if (CheckPositionValid(addNumber)==false) then positionValid=false end
-			if (CheckPositionValid(purchase)==false) then positionValid=false end
-			if (CheckPositionValid(purchaseConfirm)==false) then positionValid=false end
-			if (CheckPositionValid(cancelSubstitution)==false) then positionValid=false end
-			if (positionValid==true) then
-				--开始点击
-				if quickBuying~=true then
-					XMoveMouseToPosition(pressRefreshToken,XWaitLongTime)
-					XPressAndReleaseMouseButton(1)
-					XPressAndReleaseMouseButton(1)
-					XMoveMouseToPosition(pressWantedCategory,XWaitLongTime)
-					XPressAndReleaseMouseButton(1)
-					XMoveMouseToPosition(pressWantedItem,XWaitShortTime)
-					XPressAndReleaseMouseButton(1)
-				end
-				XMoveMouseToPosition(pressBuyingItem,XWaitShortTime)
-				XPressAndReleaseMouseButton(1)
-				XMoveMouseToPosition(addNumber,XWaitShortTime)
-				for t=1,(buyingNumber-1) do
-					XPressAndReleaseMouseButton(1)
-				end
-				XMoveMouseToPosition(purchase,XWaitShortTime)
-				XPressAndReleaseMouseButton(1)
-				XMoveMouseToPosition(purchaseConfirm,XWaitShortTime)
-				XPressAndReleaseMouseButton(1)	
-				XMoveMouseToPosition(cancelSubstitution,XWaitShortTime)
-				XPressAndReleaseMouseButton(1)	
-			else
-				XAbortMacro()
-				OutputLogMessage("Not all the positions are valid.")
-			end
+			PreBuying()
+			SwiftBuying()
 		end
 		XAbortMacro()
 	end
@@ -121,6 +67,61 @@ function OnEvent(event, arg)
 	end
 end
 
+function PreBuying()
+	positionValid=true
+	if (CheckPositionValid(pressWantedCategory)==false) then possitionValid=false end
+	if (CheckPositionValid(pressRefreshToken)==false) then positionValid=false end
+	if (CheckPositionValid(pressWantedItem)==false) then positionValid=false end
+	if (positionValid==true) then
+		--开始点击
+		XMoveMouseToPosition(pressRefreshToken,XWaitLongTime)
+		XPressAndReleaseMouseButton(1)
+		XPressAndReleaseMouseButton(1)
+		XMoveMouseToPosition(pressWantedCategory,XWaitLongTime)
+		XPressAndReleaseMouseButton(1)
+		XMoveMouseToPosition(pressWantedItem,XWaitShortTime)
+		XPressAndReleaseMouseButton(1)
+	else
+		OutputLogMessage("Not all the positions are valid.\n")
+	end
+end
+
+--↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓PURCHASEBASIC↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓--
+PRESS_WANTED_CATEGORY,PRESS_REFRESH_TOKEN,PRESS_WANTED_ITEM,PRESS_BUYING_ITEM,ADD_NUMBER,PURCHASE,PURCHASE_CONFIRM,CANCEL_SUBSTITUTION=1,2,3,4,5,6,7,8
+pressWantedCategory={px=9665,py=22898}
+pressRefreshToken={px=9801,py=30125}
+pressWantedItem={px=31623,py=23566}
+pressBuyingItem={px=31555,py=24052}
+addNumber={px=38658,py=32919}
+purchase={px=32750,py=45188}
+purchaseConfirm={px=42927,py=45067}
+cancelSubstitution={px=22744,py=44824}
+buyingNumber=3 --一次买3个
+function SwiftBuying()
+	positionValid=true
+	if (CheckPositionValid(pressBuyingItem)==false) then positionValid=false end
+	if (CheckPositionValid(addNumber)==false) then positionValid=false end
+	if (CheckPositionValid(purchase)==false) then positionValid=false end
+	if (CheckPositionValid(purchaseConfirm)==false) then positionValid=false end
+	if (CheckPositionValid(cancelSubstitution)==false) then positionValid=false end
+	if (positionValid==true) then
+		XMoveMouseToPosition(pressBuyingItem,XWaitShortTime)
+		XPressAndReleaseMouseButton(1)
+		XMoveMouseToPosition(addNumber,XWaitShortTime)
+		for t=1,(buyingNumber-1) do
+			XPressAndReleaseMouseButton(1)
+		end
+		XMoveMouseToPosition(purchase,XWaitShortTime)
+		XPressAndReleaseMouseButton(1)
+		XMoveMouseToPosition(purchaseConfirm,XWaitShortTime)
+		XPressAndReleaseMouseButton(1)	
+		XMoveMouseToPosition(cancelSubstitution,XWaitShortTime)
+		XPressAndReleaseMouseButton(1)
+	else
+		OutputLogMessage("Not all the positions are valid.\n")
+	end
+end
+
 function XWaitShortTime()
 	Sleep(XTimeShuffle())
 end
@@ -132,7 +133,9 @@ end
 function XMoveMouseToPosition(tab,sleepFunc)
 	if tab==nil then return end
 	XMoveMouseTo(tab.px,tab.py)
-	sleepFunc()
+	if sleepFunc~=nil then
+		sleepFunc()
+	end
 end
 
 function ResetPosition(tab)
@@ -148,12 +151,12 @@ function CheckPositionValid(tab)
 		return false
 	end
 end
-
+--↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑PURCHASEBASIC↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑--
 --↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓BASIC↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓--
 MIDDLE,BACKWARD,FORWARD=3,4,5
-abortButton=nil --为正数时,表示按下则停止;为负数时,表示放开则停止
+abortButton=BACKWARD --为正数时,表示按下则停止;为负数时,表示放开则停止
 mRange=1200
-mSleep=5
+mSleep=3
 mRunning=false
 funcDoClear=nil
 funcAbortLoop=nil --定制跳出宏
