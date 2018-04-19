@@ -124,6 +124,17 @@ function PressOneItemAndPressBlankArea(tab)
 	XPressAndReleaseMouseButton(1)
 end
 
+lastRandomNum=nil
+function nextRandomNumber()
+	while true do
+		local nextRandomNum=math.random(1,4)
+		if nextRandomNum~=lastRandomNum then
+			lastRandomNum=nextRandomNum
+			return lastRandomNum
+		end
+	end
+end
+
 --↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓PURCHASEBASIC↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓--
 PRESS_WANTED_CATEGORY,PRESS_REFRESH_TOKEN,PRESS_WANTED_ITEM,PRESS_BUYING_ITEM,ADD_NUMBER,PURCHASE,PURCHASE_CONFIRM,CANCEL_SUBSTITUTION=1,2,3,4,5,6,7,8
 pressWantedCategory={px=9801,py=30125}
@@ -197,7 +208,7 @@ end
 --↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓BASIC↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓--
 MIDDLE,BACKWARD,FORWARD=3,4,5
 abortButton=nil --为正数时,表示按下则停止;为负数时,表示放开则停止
-mRange=1200
+mRange=1500
 mSleep=3
 mRunning=false
 funcDoClear=nil
