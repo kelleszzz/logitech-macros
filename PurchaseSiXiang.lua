@@ -97,31 +97,32 @@ function PreBuying()
 	if (CheckPositionValid(pressWantedItem)==false) then positionValid=false end
 	if (positionValid==true) then
 		--¿ªÊ¼µã»÷
-		XMoveMouseToPosition(pressRefreshToken,XWaitLongTime)
-		XPressAndReleaseMouseButton(1)
-		XPressAndReleaseMouseButton(1)
-		XMoveMouseToPosition(pressWantedCategory,XWaitLongTime)
-		XPressAndReleaseMouseButton(1)
+		if XMoveMouseToPosition(pressRefreshToken,XWaitLongTime)==false then return false end
+		if XPressAndReleaseMouseButton(1)==false then return false end
+		if XPressAndReleaseMouseButton(1)==false then return false end
+		if XMoveMouseToPosition(pressWantedCategory,XWaitLongTime)==false then return false end
+		if XPressAndReleaseMouseButton(1)==false then return false end
 		if genericBuying==true then
-			PressOneItemAndPressBlankArea(qingLong)
-			PressOneItemAndPressBlankArea(baiHu)
-			PressOneItemAndPressBlankArea(zhuQue)
-			PressOneItemAndPressBlankArea(xuanWu)
+			if PressOneItemAndPressBlankArea(qingLong)==false then return false end
+			if PressOneItemAndPressBlankArea(baiHu)==false then return false end
+			if PressOneItemAndPressBlankArea(zhuQue)==false then return false end
+			if PressOneItemAndPressBlankArea(xuanWu)==false then return false end
 		else
-			XMoveMouseToPosition(pressWantedItem,XWaitShortTime)
-			XPressAndReleaseMouseButton(1)
+			if XMoveMouseToPosition(pressWantedItem,XWaitShortTime)==false then return false end
+			if XPressAndReleaseMouseButton(1)==false then return false end
 		end
 	else
 		OutputLogMessage("Not all the positions are valid.\n")
+		return false
 	end
 end
 
 function PressOneItemAndPressBlankArea(tab)
-	if (CheckPositionValid(tab)==false) then return end
-	XMoveMouseToPosition(tab,XWaitMicroTime)
-	XPressAndReleaseMouseButton(1)
-	XMoveMouseToPosition(blankArea,XWaitMicroTime)
-	XPressAndReleaseMouseButton(1)
+	if (CheckPositionValid(tab)==false) then return false end
+	if XMoveMouseToPosition(tab,XWaitMicroTime)==false then return false end
+	if XPressAndReleaseMouseButton(1)==false then return false end
+	if XMoveMouseToPosition(blankArea,XWaitMicroTime)==false then return false end
+	if XPressAndReleaseMouseButton(1)==false then return false end
 end
 
 lastRandomNum=nil
@@ -154,20 +155,21 @@ function SwiftBuying()
 	if (CheckPositionValid(purchaseConfirm)==false) then positionValid=false end
 	if (CheckPositionValid(cancelSubstitution)==false) then positionValid=false end
 	if (positionValid==true) then
-		XMoveMouseToPosition(pressBuyingItem,XWaitShortTime)
-		XPressAndReleaseMouseButton(1)
-		XMoveMouseToPosition(addNumber,XWaitShortTime)
+		if XMoveMouseToPosition(pressBuyingItem,XWaitShortTime)==false then return false end
+		if XPressAndReleaseMouseButton(1)==false then return false end
+		if XMoveMouseToPosition(addNumber,XWaitShortTime)==false then return false end
 		for t=1,(buyingNumber-1) do
-			XPressAndReleaseMouseButton(1)
+			if XPressAndReleaseMouseButton(1)==false then return false end
 		end
-		XMoveMouseToPosition(purchase,XWaitShortTime)
-		XPressAndReleaseMouseButton(1)
-		XMoveMouseToPosition(purchaseConfirm,XWaitShortTime)
-		XPressAndReleaseMouseButton(1)	
-		XMoveMouseToPosition(cancelSubstitution,XWaitShortTime)
-		XPressAndReleaseMouseButton(1)
+		if XMoveMouseToPosition(purchase,XWaitShortTime)==false then return false end
+		if XPressAndReleaseMouseButton(1)==false then return false end
+		if XMoveMouseToPosition(purchaseConfirm,XWaitShortTime)==false then return false end
+		if XPressAndReleaseMouseButton(1)==false then return false end
+		if XMoveMouseToPosition(cancelSubstitution,XWaitShortTime)==false then return false end
+		if XPressAndReleaseMouseButton(1)==false then return false end
 	else
 		OutputLogMessage("Not all the positions are valid.\n")
+		return false
 	end
 end
 
@@ -185,7 +187,7 @@ end
 
 function XMoveMouseToPosition(tab,sleepFunc)
 	if tab==nil then return end
-	XMoveMouseTo(tab.px,tab.py)
+	if XMoveMouseTo(tab.px,tab.py)==false then return false end
 	if sleepFunc~=nil then
 		sleepFunc()
 	end

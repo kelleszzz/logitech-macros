@@ -17,20 +17,21 @@ function SwiftBuying()
 	if (CheckPositionValid(purchaseConfirm)==false) then positionValid=false end
 	if (CheckPositionValid(cancelSubstitution)==false) then positionValid=false end
 	if (positionValid==true) then
-		XMoveMouseToPosition(pressBuyingItem,XWaitShortTime)
-		XPressAndReleaseMouseButton(1)
-		XMoveMouseToPosition(addNumber,XWaitShortTime)
+		if XMoveMouseToPosition(pressBuyingItem,XWaitShortTime)==false then return false end
+		if XPressAndReleaseMouseButton(1)==false then return false end
+		if XMoveMouseToPosition(addNumber,XWaitShortTime)==false then return false end
 		for t=1,(buyingNumber-1) do
-			XPressAndReleaseMouseButton(1)
+			if XPressAndReleaseMouseButton(1)==false then return false end
 		end
-		XMoveMouseToPosition(purchase,XWaitShortTime)
-		XPressAndReleaseMouseButton(1)
-		XMoveMouseToPosition(purchaseConfirm,XWaitShortTime)
-		XPressAndReleaseMouseButton(1)	
-		XMoveMouseToPosition(cancelSubstitution,XWaitShortTime)
-		XPressAndReleaseMouseButton(1)
+		if XMoveMouseToPosition(purchase,XWaitShortTime)==false then return false end
+		if XPressAndReleaseMouseButton(1)==false then return false end
+		if XMoveMouseToPosition(purchaseConfirm,XWaitShortTime)==false then return false end
+		if XPressAndReleaseMouseButton(1)==false then return false end
+		if XMoveMouseToPosition(cancelSubstitution,XWaitShortTime)==false then return false end
+		if XPressAndReleaseMouseButton(1)==false then return false end
 	else
 		OutputLogMessage("Not all the positions are valid.\n")
+		return false
 	end
 end
 
@@ -48,7 +49,7 @@ end
 
 function XMoveMouseToPosition(tab,sleepFunc)
 	if tab==nil then return end
-	XMoveMouseTo(tab.px,tab.py)
+	if XMoveMouseTo(tab.px,tab.py)==false then return false end
 	if sleepFunc~=nil then
 		sleepFunc()
 	end

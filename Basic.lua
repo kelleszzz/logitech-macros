@@ -1,7 +1,7 @@
 --↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓BASIC↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓--
 MIDDLE,BACKWARD,FORWARD=3,4,5
 abortButton=BACKWARD --为正数时,表示按下则停止;为负数时,表示放开则停止
-mRange=1000
+mRange=1500
 mSleep=5
 mRunning=false
 funcDoClear=nil
