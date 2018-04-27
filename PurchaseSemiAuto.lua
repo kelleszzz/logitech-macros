@@ -5,6 +5,8 @@ skipBackwardOnce=false --°´ÏÂÇ°½ø¼üË¢ÐÂÊ±,Èç¹ûÔÙ°´ÏÂÁËºóÍË¼ü,ºóÍË¼üÒ²»áÈë¶ÓÖ´ÐÐÒ
 function OnEvent(event, arg)
 	--ÅäÖÃ
 	buyingNumber=3 --Ò»´ÎÂò3¸ö
+	mRange=1200
+	mSleep=3
 	abortButton=nil
 	funcDoClear=function()
 		status=nil
@@ -74,7 +76,7 @@ function Refresh()
 		if XPressAndReleaseMouseButton(1)==false then return false end
 		if XMoveMouseToPosition(pressWantedItem,XWaitLongTime)==false then return false end
 		if XPressAndReleaseMouseButton(1)==false then return false end
-		Sleep(XTimeShuffle()*2)
+		XSleep(XTimeShuffle()*2)
 	else
 		OutputLogMessage("Not all the positions are valid.\n")
 		return false
@@ -119,15 +121,15 @@ function SwiftBuying()
 end
 
 function XWaitMicroTime()
-	Sleep(XTimeShuffle()/4)
+	XSleep(XTimeShuffle()/4)
 end
 
 function XWaitShortTime()
-	Sleep(XTimeShuffle())
+	XSleep(XTimeShuffle())
 end
 
 function XWaitLongTime()
-	Sleep(XTimeShuffle()*5)
+	XSleep(XTimeShuffle()*5)
 end
 
 function XMoveMouseToPosition(tab,sleepFunc)
@@ -154,12 +156,13 @@ end
 --¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡üPURCHASEBASIC¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü--
 --¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ýBASIC¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý--
 MIDDLE,BACKWARD,FORWARD=3,4,5
-abortButton=nil --ÎªÕýÊýÊ±,±íÊ¾°´ÏÂÔòÍ£Ö¹;Îª¸ºÊýÊ±,±íÊ¾·Å¿ªÔòÍ£Ö¹
-mRange=1200
-mSleep=3
+abortButton=BACKWARD --ÎªÕýÊýÊ±,±íÊ¾°´ÏÂÔòÍ£Ö¹;Îª¸ºÊýÊ±,±íÊ¾·Å¿ªÔòÍ£Ö¹
+mRange=1500
+mSleep=5
 mRunning=false
 funcDoClear=nil
 funcAbortLoop=nil --¶¨ÖÆÌø³öºê
+maxSleepInterval=5
 math.randomseed(GetDate("%I%M%S")+0)
 function XPlayMacro(macro)
 	if mRunning then
@@ -205,6 +208,10 @@ function XSleep(millis)
 	if (XAbortLoop(abortButton)) then
 		XAbortMacro()
 		return false
+	end
+	if (millis>maxSleepInterval) then
+		Sleep(maxSleepInterval)
+		return XSleep(millis-maxSleepInterval)
 	end
 	Sleep(millis)
 end

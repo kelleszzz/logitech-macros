@@ -3,6 +3,8 @@ status=nil
 function OnEvent(event, arg)
 	--配置
 	buyingNumber=3 --一次买3个
+	mRange=1200
+	mSleep=3
 	funcDoClear=function()
 		status=nil
 		--ResetPosition(pressWantedCategory)
@@ -126,15 +128,15 @@ function SwiftBuying()
 end
 
 function XWaitMicroTime()
-	Sleep(XTimeShuffle()/4)
+	XSleep(XTimeShuffle()/4)
 end
 
 function XWaitShortTime()
-	Sleep(XTimeShuffle())
+	XSleep(XTimeShuffle())
 end
 
 function XWaitLongTime()
-	Sleep(XTimeShuffle()*5)
+	XSleep(XTimeShuffle()*5)
 end
 
 function XMoveMouseToPosition(tab,sleepFunc)
@@ -167,6 +169,7 @@ mSleep=5
 mRunning=false
 funcDoClear=nil
 funcAbortLoop=nil --定制跳出宏
+maxSleepInterval=5
 math.randomseed(GetDate("%I%M%S")+0)
 function XPlayMacro(macro)
 	if mRunning then
@@ -212,6 +215,10 @@ function XSleep(millis)
 	if (XAbortLoop(abortButton)) then
 		XAbortMacro()
 		return false
+	end
+	if (millis>maxSleepInterval) then
+		Sleep(maxSleepInterval)
+		return XSleep(millis-maxSleepInterval)
 	end
 	Sleep(millis)
 end

@@ -11,6 +11,10 @@ genericBuying=true --是否对所有碎片尝试购买,还是专注于购买一种碎片
 function OnEvent(event, arg)
 	--配置
 	buyingNumber=3 --一次买3个
+	mRange=1500
+	mSleep=3
+	pressWantedCategory={px=9801,py=30125}
+	pressRefreshToken={px=9665,py=22898}
 	abortButton=nil
 	funcDoClear=function()
 		status=nil
@@ -139,8 +143,8 @@ end
 
 --↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓PURCHASEBASIC↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓--
 PRESS_WANTED_CATEGORY,PRESS_REFRESH_TOKEN,PRESS_WANTED_ITEM,PRESS_BUYING_ITEM,ADD_NUMBER,PURCHASE,PURCHASE_CONFIRM,CANCEL_SUBSTITUTION=1,2,3,4,5,6,7,8
-pressWantedCategory={px=9801,py=30125}
-pressRefreshToken={px=9665,py=22898}
+pressWantedCategory={px=9665,py=22898}
+pressRefreshToken={px=9801,py=30125}
 pressWantedItem={px=31623,py=23566}
 pressBuyingItem={px=31555,py=24052}
 addNumber={px=38658,py=32919}
@@ -175,15 +179,15 @@ function SwiftBuying()
 end
 
 function XWaitMicroTime()
-	Sleep(XTimeShuffle()/4)
+	XSleep(XTimeShuffle()/4)
 end
 
 function XWaitShortTime()
-	Sleep(XTimeShuffle())
+	XSleep(XTimeShuffle())
 end
 
 function XWaitLongTime()
-	Sleep(XTimeShuffle()*5)
+	XSleep(XTimeShuffle()*5)
 end
 
 function XMoveMouseToPosition(tab,sleepFunc)
@@ -210,12 +214,13 @@ end
 --↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑PURCHASEBASIC↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑--
 --↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓BASIC↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓--
 MIDDLE,BACKWARD,FORWARD=3,4,5
-abortButton=nil --为正数时,表示按下则停止;为负数时,表示放开则停止
+abortButton=BACKWARD --为正数时,表示按下则停止;为负数时,表示放开则停止
 mRange=1500
-mSleep=3
+mSleep=5
 mRunning=false
 funcDoClear=nil
 funcAbortLoop=nil --定制跳出宏
+maxSleepInterval=5
 math.randomseed(GetDate("%I%M%S")+0)
 function XPlayMacro(macro)
 	if mRunning then
@@ -261,6 +266,10 @@ function XSleep(millis)
 	if (XAbortLoop(abortButton)) then
 		XAbortMacro()
 		return false
+	end
+	if (millis>maxSleepInterval) then
+		Sleep(maxSleepInterval)
+		return XSleep(millis-maxSleepInterval)
 	end
 	Sleep(millis)
 end

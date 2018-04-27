@@ -6,6 +6,7 @@ mSleep=5
 mRunning=false
 funcDoClear=nil
 funcAbortLoop=nil --¶¨ÖÆÌø³öºê
+maxSleepInterval=5
 math.randomseed(GetDate("%I%M%S")+0)
 function XPlayMacro(macro)
 	if mRunning then
@@ -51,6 +52,9 @@ function XSleep(millis)
 	if (XAbortLoop(abortButton)) then
 		XAbortMacro()
 		return false
+	end
+	if (millis>maxSleepInterval) then
+		return XSleep(millis-maxSleepInterval)
 	end
 	Sleep(millis)
 end
