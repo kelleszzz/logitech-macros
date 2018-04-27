@@ -4,6 +4,7 @@ enableSwiftBuying=true
 skipBackwardOnce=false --按下前进键刷新时,如果再按下了后退键,后退键也会入队执行一次宏,现在需要将这次不必要的执行跳过
 function OnEvent(event, arg)
 	--配置
+	buyingNumber=3 --一次买3个
 	abortButton=nil
 	funcDoClear=function()
 		status=nil

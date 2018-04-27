@@ -10,6 +10,7 @@ skipBackwardOnce=false --°´ÏÂÇ°½ø¼üË¢ĞÂÊ±,Èç¹ûÔÙ°´ÏÂÁËºóÍË¼ü,ºóÍË¼üÒ²»áÈë¶ÓÖ´ĞĞÒ
 genericBuying=true --ÊÇ·ñ¶ÔËùÓĞËéÆ¬³¢ÊÔ¹ºÂò,»¹ÊÇ×¨×¢ÓÚ¹ºÂòÒ»ÖÖËéÆ¬
 function OnEvent(event, arg)
 	--ÅäÖÃ
+	buyingNumber=3 --Ò»´ÎÂò3¸ö
 	abortButton=nil
 	funcDoClear=function()
 		status=nil

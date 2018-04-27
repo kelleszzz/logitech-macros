@@ -2,6 +2,7 @@
 status=nil
 function OnEvent(event, arg)
 	--ÅäÖÃ
+	buyingNumber=3 --Ò»´ÎÂò3¸ö
 	funcDoClear=function()
 		status=nil
 		--ResetPosition(pressWantedCategory)
