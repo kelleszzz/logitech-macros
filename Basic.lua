@@ -54,6 +54,7 @@ function XSleep(millis)
 		return false
 	end
 	if (millis>maxSleepInterval) then
+		Sleep(maxSleepInterval)
 		return XSleep(millis-maxSleepInterval)
 	end
 	Sleep(millis)

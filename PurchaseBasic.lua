@@ -36,15 +36,15 @@ function SwiftBuying()
 end
 
 function XWaitMicroTime()
-	Sleep(XTimeShuffle()/4)
+	XSleep(XTimeShuffle()/4)
 end
 
 function XWaitShortTime()
-	Sleep(XTimeShuffle())
+	XSleep(XTimeShuffle())
 end
 
 function XWaitLongTime()
-	Sleep(XTimeShuffle()*5)
+	XSleep(XTimeShuffle()*5)
 end
 
 function XMoveMouseToPosition(tab,sleepFunc)
