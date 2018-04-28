@@ -20,14 +20,8 @@ function XMoveMouseRelative(mx,my)
 	if (nextYPos>65535) then nextYPos=65535 end
 	MoveMouseTo(nextXPos,nextYPos)
 	if lastStep then return end
-	if XSleep(mSleep)==false then
-		XAbortMacro()
-		return false
-	end
-	if XMoveMouseRelative(mx-nextXMove,my-nextYMove)==false then
-		XAbortMacro()
-		return false
-	end
+	if XSleep(mSleep)==false then return false end
+	if XMoveMouseRelative(mx-nextXMove,my-nextYMove)==false then return false end
 end
 
 function XMoveMouseTo(dx,dy)
@@ -49,15 +43,10 @@ function XMoveMouseTo(dx,dy)
 		--最后一次移动
 		return XMoveMouseRelative(nextXMove+XPositionShuffle(),nextYMove+XPositionShuffle()) 
 	end
-	XMoveMouseRelative(nextXMove,nextYMove) --处于一次移动最小范围内
-	if XSleep(mSleep)==false then
-		XAbortMacro()
-		return false
-	end
-	if XMoveMouseTo(dx,dy)==false then
-		XAbortMacro()
-		return false
-	end
+	--处于一次移动最小范围内
+	if XMoveMouseRelative(nextXMove,nextYMove)==false then return false end
+	if XSleep(mSleep)==false then return false end
+	if XMoveMouseTo(dx,dy)==false then return false end
 end
 
 function XPressAndReleaseMouseButton(button)
@@ -65,13 +54,13 @@ function XPressAndReleaseMouseButton(button)
 		XAbortMacro()
 		return false
 	end
-	XPressMouseButton(button)
-	XSleep(XTimeShuffle())
-	XReleaseMouseButton(button) --必须release
+	if XPressMouseButton(button)==false then return false end
 	if XSleep(XTimeShuffle())==false then
-		XAbortMacro()
+		XReleaseMouseButton(button) --必须release
 		return false
 	end
+	XReleaseMouseButton(button) --必须release
+	if XSleep(XTimeShuffle())==false then return false end
 end
 
 function XMoveMouseWheel(range)
@@ -87,25 +76,20 @@ function XMoveMouseWheel(range)
 	if (dy<0) then
 		dy=0
 	end
-	if XMoveMouseTo(px,dy)==false then
-		XAbortMacro()
-		return false
-	end
+	if XMoveMouseTo(px,dy)==false then return false end
 	if XPressMouseButton(1)==false then
 		XReleaseMouseButton(1) --必须release
-		XAbortMacro()
 		return false
 	end
 	if XMoveMouseTo(px,py)==false then
 		XReleaseMouseButton(1) --必须release
-		XAbortMacro()
 		return false
 	end
 	XReleaseMouseButton(1) --必须release
-	return flag
 end
 
 function XPressMouseButton(button)
+	--XAbortMacro元函数,仅调用Logitech API及自身,未调用其它X系列函数
 	if (XAbortLoop(abortButton)) then
 		XAbortMacro()
 		return false
@@ -114,22 +98,14 @@ function XPressMouseButton(button)
 end
 
 function XReleaseMouseButton(button)
-	if (XAbortLoop(abortButton)) then
-		ReleaseMouseButton(button) --必须release
-		XAbortMacro()
-		return false
-	end
-	ReleaseMouseButton(button)
+	--XAbortMacro元函数,仅调用Logitech API及自身,未调用其它X系列函数
+	ReleaseMouseButton(button) --必须release
 end
 
 --以下为内置函数
 XPositionShuffle=function()
 	local range=30
 	return math.random()*range*2-range
-end
-
-XTimeShuffle=function()
-	return 50+math.random()*50
 end
 --↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑MOUSE↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑--
 

@@ -9,6 +9,10 @@ purchase={px=32750,py=45188}
 purchaseConfirm={px=42927,py=45067}
 cancelSubstitution={px=22744,py=44824}
 buyingNumber=3 --一次买3个
+funcDoClearBasic=function()
+	status=nil
+	Sleep(XTimeShuffle()) --睡眠一段时间,防止下次操作直接入列
+end
 function SwiftBuying()
 	positionValid=true
 	if (CheckPositionValid(pressBuyingItem)==false) then positionValid=false end
@@ -48,7 +52,11 @@ function XWaitLongTime()
 end
 
 function XMoveMouseToPosition(tab,sleepFunc)
-	if tab==nil then return end
+	if tab==nil then return false end
+	if (XAbortLoop(abortButton)) then
+		XAbortMacro()
+		return false
+	end
 	if XMoveMouseTo(tab.px,tab.py)==false then return false end
 	if sleepFunc~=nil then
 		sleepFunc()

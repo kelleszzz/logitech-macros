@@ -7,12 +7,7 @@ function OnEvent(event, arg)
 	mSleep=3
 	funcDoClear=function()
 		status=nil
-		--ResetPosition(pressWantedCategory)
-		--ResetPosition(pressRefreshToken)
-		--ResetPosition(pressWantedItem)
-		--ResetPosition(pressBuyingItem)
-		--ResetPosition(purchase)
-		--ResetPosition(purchaseConfirm)
+		Sleep(XTimeShuffle()) --睡眠一段时间,防止下次操作直接入列
 	end
 	--逻辑
 	if (event == "MOUSE_BUTTON_PRESSED" and arg == FORWARD) then --当鼠标前进键按下时
@@ -109,6 +104,7 @@ function XPlayMacro(macro)
 	OutputLogMessage("XPlayMacro "..GetDate().."\n")
 end
 function XAbortMacro()
+	--尽量不要在宏中单独调用此函数;幂等;保证每次退出时,此函数只执行一次
 	AbortMacro()
 	mRunning=false
 	if (funcDoClear~=nil) then 
@@ -141,6 +137,7 @@ function PrintPosition()
 	OutputLogMessage("(%s,%s) %s\n",""..px,""..py,GetDate().."")
 end
 function XSleep(millis)
+	--XAbortMacro元函数,仅调用Logitech API及自身,未调用其它X系列函数
 	if (XAbortLoop(abortButton)) then
 		XAbortMacro()
 		return false
@@ -150,6 +147,9 @@ function XSleep(millis)
 		return XSleep(millis-maxSleepInterval)
 	end
 	Sleep(millis)
+end
+XTimeShuffle=function()
+	return 50+math.random()*50
 end
 --↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑BASIC↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑--
 --↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓MOUSE↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓--
@@ -174,14 +174,8 @@ function XMoveMouseRelative(mx,my)
 	if (nextYPos>65535) then nextYPos=65535 end
 	MoveMouseTo(nextXPos,nextYPos)
 	if lastStep then return end
-	if XSleep(mSleep)==false then
-		XAbortMacro()
-		return false
-	end
-	if XMoveMouseRelative(mx-nextXMove,my-nextYMove)==false then
-		XAbortMacro()
-		return false
-	end
+	if XSleep(mSleep)==false then return false end
+	if XMoveMouseRelative(mx-nextXMove,my-nextYMove)==false then return false end
 end
 
 function XMoveMouseTo(dx,dy)
@@ -203,15 +197,10 @@ function XMoveMouseTo(dx,dy)
 		--最后一次移动
 		return XMoveMouseRelative(nextXMove+XPositionShuffle(),nextYMove+XPositionShuffle()) 
 	end
-	XMoveMouseRelative(nextXMove,nextYMove) --处于一次移动最小范围内
-	if XSleep(mSleep)==false then
-		XAbortMacro()
-		return false
-	end
-	if XMoveMouseTo(dx,dy)==false then
-		XAbortMacro()
-		return false
-	end
+	--处于一次移动最小范围内
+	if XMoveMouseRelative(nextXMove,nextYMove)==false then return false end
+	if XSleep(mSleep)==false then return false end
+	if XMoveMouseTo(dx,dy)==false then return false end
 end
 
 function XPressAndReleaseMouseButton(button)
@@ -219,13 +208,13 @@ function XPressAndReleaseMouseButton(button)
 		XAbortMacro()
 		return false
 	end
-	XPressMouseButton(button)
-	XSleep(XTimeShuffle())
-	XReleaseMouseButton(button) --必须release
+	if XPressMouseButton(button)==false then return false end
 	if XSleep(XTimeShuffle())==false then
-		XAbortMacro()
+		XReleaseMouseButton(button) --必须release
 		return false
 	end
+	XReleaseMouseButton(button) --必须release
+	if XSleep(XTimeShuffle())==false then return false end
 end
 
 function XMoveMouseWheel(range)
@@ -241,25 +230,20 @@ function XMoveMouseWheel(range)
 	if (dy<0) then
 		dy=0
 	end
-	if XMoveMouseTo(px,dy)==false then
-		XAbortMacro()
-		return false
-	end
+	if XMoveMouseTo(px,dy)==false then return false end
 	if XPressMouseButton(1)==false then
 		XReleaseMouseButton(1) --必须release
-		XAbortMacro()
 		return false
 	end
 	if XMoveMouseTo(px,py)==false then
 		XReleaseMouseButton(1) --必须release
-		XAbortMacro()
 		return false
 	end
 	XReleaseMouseButton(1) --必须release
-	return flag
 end
 
 function XPressMouseButton(button)
+	--XAbortMacro元函数,仅调用Logitech API及自身,未调用其它X系列函数
 	if (XAbortLoop(abortButton)) then
 		XAbortMacro()
 		return false
@@ -268,22 +252,14 @@ function XPressMouseButton(button)
 end
 
 function XReleaseMouseButton(button)
-	if (XAbortLoop(abortButton)) then
-		ReleaseMouseButton(button) --必须release
-		XAbortMacro()
-		return false
-	end
-	ReleaseMouseButton(button)
+	--XAbortMacro元函数,仅调用Logitech API及自身,未调用其它X系列函数
+	ReleaseMouseButton(button) --必须release
 end
 
 --以下为内置函数
 XPositionShuffle=function()
 	local range=30
 	return math.random()*range*2-range
-end
-
-XTimeShuffle=function()
-	return 50+math.random()*50
 end
 --↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑MOUSE↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑--
 --↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓PURCHASEBASIC↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓--
@@ -297,6 +273,10 @@ purchase={px=32750,py=45188}
 purchaseConfirm={px=42927,py=45067}
 cancelSubstitution={px=22744,py=44824}
 buyingNumber=3 --一次买3个
+funcDoClearBasic=function()
+	status=nil
+	Sleep(XTimeShuffle()) --睡眠一段时间,防止下次操作直接入列
+end
 function SwiftBuying()
 	positionValid=true
 	if (CheckPositionValid(pressBuyingItem)==false) then positionValid=false end

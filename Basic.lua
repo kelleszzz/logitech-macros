@@ -17,6 +17,7 @@ function XPlayMacro(macro)
 	OutputLogMessage("XPlayMacro "..GetDate().."\n")
 end
 function XAbortMacro()
+	--尽量不要在宏中单独调用此函数;幂等;保证每次退出时,此函数只执行一次
 	AbortMacro()
 	mRunning=false
 	if (funcDoClear~=nil) then 
@@ -49,6 +50,7 @@ function PrintPosition()
 	OutputLogMessage("(%s,%s) %s\n",""..px,""..py,GetDate().."")
 end
 function XSleep(millis)
+	--XAbortMacro元函数,仅调用Logitech API及自身,未调用其它X系列函数
 	if (XAbortLoop(abortButton)) then
 		XAbortMacro()
 		return false
@@ -58,5 +60,8 @@ function XSleep(millis)
 		return XSleep(millis-maxSleepInterval)
 	end
 	Sleep(millis)
+end
+XTimeShuffle=function()
+	return 50+math.random()*50
 end
 --↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑BASIC↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑--
