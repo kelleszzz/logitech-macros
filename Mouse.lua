@@ -2,6 +2,7 @@
 function XMoveMouseRelative(mx,my)
 	--尽量不要在宏中单读调用此函数
 	if XAbortLoop(abortButton) then
+		OutputLogMessage("XAbortMacro while [XMoveMouseRelative] "..GetDate().."\n")
 		XAbortMacro()
 		return false
 	end
@@ -26,6 +27,7 @@ end
 
 function XMoveMouseTo(dx,dy)
 	if (XAbortLoop(abortButton)) then
+		OutputLogMessage("XAbortMacro while [XMoveMouseTo] "..GetDate().."\n")
 		XAbortMacro()
 		return false
 	end
@@ -51,6 +53,7 @@ end
 
 function XPressAndReleaseMouseButton(button)
 	if (XAbortLoop(abortButton)) then
+		OutputLogMessage("XAbortMacro while [XPressAndReleaseMouseButton] "..GetDate().."\n")
 		XAbortMacro()
 		return false
 	end
@@ -65,6 +68,7 @@ end
 
 function XMoveMouseWheel(range)
 	if (XAbortLoop(abortButton)) then
+		OutputLogMessage("XAbortMacro while [XMoveMouseWheel] "..GetDate().."\n")
 		XAbortMacro()
 		return false
 	end
@@ -91,6 +95,7 @@ end
 function XPressMouseButton(button)
 	--XAbortMacro元函数,仅调用Logitech API及自身,未调用其它X系列函数
 	if (XAbortLoop(abortButton)) then
+		OutputLogMessage("XAbortMacro while [XPressMouseButton] "..GetDate().."\n")
 		XAbortMacro()
 		return false
 	end

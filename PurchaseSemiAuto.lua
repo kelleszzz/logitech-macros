@@ -5,13 +5,14 @@ skipBackwardOnce=false --°´ÏÂÇ°½ø¼üË¢ÐÂÊ±,Èç¹ûÔÙ°´ÏÂÁËºóÍË¼ü,ºóÍË¼üÒ²»áÈë¶ÓÖ´ÐÐÒ
 function OnEvent(event, arg)
 	--ÅäÖÃ
 	buyingNumber=4 --Ò»´ÎÂò3¸ö
-	mRange=1200
-	mSleep=3
+	mRange=800
+	mSleep=2
 	abortButton=nil
 	funcDoClear=funcDoClearBasic
 	--Âß¼­
 	if (event == "MOUSE_BUTTON_PRESSED" and arg == FORWARD) then --µ±Êó±êÇ°½ø¼ü°´ÏÂÊ±
 		if XPlayMacro("Refresh")==false then return end
+		OutputLogMessage("FORWARD\n")
 		--ÅäÖÃ
 		abortButton=BACKWARD
 		funcDoClear=function()
@@ -19,9 +20,9 @@ function OnEvent(event, arg)
 			skipBackwardOnce=true
 		end
 		while mRunning==true do
-			Refresh()
+			if Refresh()==false then return end
 		end
-		XAbortMacro()
+		--XAbortMacro()
 	end
 	if (event == "MOUSE_BUTTON_PRESSED" and arg == BACKWARD and enableSwiftBuying==true) then --µ±Êó±ê·µ»Ø¼ü°´ÏÂÊ±
 		if skipBackwardOnce==true then
@@ -29,12 +30,13 @@ function OnEvent(event, arg)
 			return
 		end
 		if XPlayMacro("Refresh")==false then return end
+		OutputLogMessage("BACKWARD\n")
 		--ÅäÖÃ
 		abortButton=-BACKWARD
 		while mRunning==true do
-			SwiftBuying()
+			if SwiftBuying()==false then return end
 		end
-		XAbortMacro()
+		--XAbortMacro()
 	end
 	if (event == "MOUSE_BUTTON_PRESSED" and arg == MIDDLE) then --µ±Êó±êÖÐ¼ü°´ÏÂÊ±
 		local px,py=GetMousePosition()
@@ -81,184 +83,6 @@ function Refresh()
 	end
 end
 
---¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ýBASIC¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý--
-MIDDLE,BACKWARD,FORWARD=3,4,5
-abortButton=BACKWARD --ÎªÕýÊýÊ±,±íÊ¾°´ÏÂÔòÍ£Ö¹;Îª¸ºÊýÊ±,±íÊ¾·Å¿ªÔòÍ£Ö¹
-mRange=1500
-mSleep=5
-mRunning=false
-funcDoClear=nil
-funcAbortLoop=nil --¶¨ÖÆÌø³öºê
-maxSleepInterval=5
-math.randomseed(GetDate("%I%M%S")+0)
-function XPlayMacro(macro)
-	if mRunning then
-		return false
-	end
-	mRunning=true
-	PlayMacro(macro)
-	OutputLogMessage("XPlayMacro "..GetDate().."\n")
-end
-function XAbortMacro()
-	--¾¡Á¿²»ÒªÔÚºêÖÐµ¥¶Àµ÷ÓÃ´Ëº¯Êý;ÃÝµÈ;±£Ö¤Ã¿´ÎÍË³öÊ±,´Ëº¯ÊýÖ»Ö´ÐÐÒ»´Î
-	AbortMacro()
-	mRunning=false
-	if (funcDoClear~=nil) then 
-		funcDoClear() 
-	end
-	Sleep(XTimeShuffle()) --Ë¯ÃßÒ»¶ÎÊ±¼ä,·ÀÖ¹ÏÂ´Î²Ù×÷Ö±½ÓÈëÁÐ
-	--OutputLogMessage("XAbortMacro "..GetDate().."\n")
-end
-function XAbortLoop(button)
-	local doAbort
-	if funcAbortLoop~=nil and funcAbortLoop()==true then
-		doAbort=true
-	end
-	if mRunning==false then 
-		doAbort=true 
-	end
-	if (button~=nil and button>0) then
-		if IsMouseButtonPressed(button) then doAbort=true end
-	end
-	if (button~=nil and button<0) then
-		if IsMouseButtonPressed(-button)==false then doAbort=true end
-	end
-	if doAbort then
-		--´Ëº¯ÊýÖ»½øÐÐÅÐ¶Ï,ÕæÕýÌø³öºêÐèÒªÔÙ´Îµ÷ÓÃXAbortMacro
-		OutputLogMessage("XAbortLoop "..GetDate().."\n")
-		return true
-	end
-end
-function PrintPosition()
-	local px,py=GetMousePosition()
-	OutputLogMessage("(%s,%s) %s\n",""..px,""..py,GetDate().."")
-end
-function XSleep(millis)
-	--XAbortMacroÔªº¯Êý,½öµ÷ÓÃLogitech API¼°×ÔÉí,Î´µ÷ÓÃÆäËüXÏµÁÐº¯Êý
-	if (XAbortLoop(abortButton)) then
-		XAbortMacro()
-		return false
-	end
-	if (millis>maxSleepInterval) then
-		Sleep(maxSleepInterval)
-		return XSleep(millis-maxSleepInterval)
-	end
-	Sleep(millis)
-end
-XTimeShuffle=function()
-	return 50+math.random()*50
-end
---¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡üBASIC¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü--
---¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ýMOUSE¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý--
-function XMoveMouseRelative(mx,my)
-	--¾¡Á¿²»ÒªÔÚºêÖÐµ¥¶Áµ÷ÓÃ´Ëº¯Êý
-	if XAbortLoop(abortButton) then
-		XAbortMacro()
-		return false
-	end
-	local px,py=GetMousePosition()
-	local lastStep=false
-	local nextXMove,nextYMove
-	if (math.abs(mx)<=mRange and math.abs(my)<=mRange) then lastStep=true end --Ò»´ÎÒÆ¶¯¼´¿Éµ½´ïÖÕµã,²»ÔÙµÝ¹é
-	if math.abs(mx)<=mRange then nextXMove=mx else nextXMove=mx*mRange/math.abs(mx) end
-	if math.abs(my)<=mRange then nextYMove=my else nextYMove=my*mRange/math.abs(my) end
-	--±ß½çÅÐ¶Ï,²»¿É³¬³ö±ß½ç
-	local nextXPos=px+nextXMove
-	local nextYPos=py+nextYMove
-	if (nextXPos<0) then nextXPos=0 end
-	if (nextXPos>65535) then nextXPos=65535 end
-	if (nextYPos<0) then nextYPos=0 end
-	if (nextYPos>65535) then nextYPos=65535 end
-	MoveMouseTo(nextXPos,nextYPos)
-	if lastStep then return end
-	if XSleep(mSleep)==false then return false end
-	if XMoveMouseRelative(mx-nextXMove,my-nextYMove)==false then return false end
-end
-
-function XMoveMouseTo(dx,dy)
-	if (XAbortLoop(abortButton)) then
-		XAbortMacro()
-		return false
-	end
-	if (dx==nil or dy==nil or dx<0 or dx>65535 or dy<0 or dy>65535) then
-		return false
-	end
-	local px,py=GetMousePosition()
-	local mx,my=dx-px,dy-py
-	local lastStep=false
-	local nextXMove,nextYMove
-	if (math.abs(mx)<=mRange and math.abs(my)<=mRange) then lastStep=true end
-	if math.abs(mx)<=mRange then nextXMove=mx else nextXMove=mx*mRange/math.abs(mx) end
-	if math.abs(my)<=mRange then nextYMove=my else nextYMove=my*mRange/math.abs(my) end
-	if lastStep then 
-		--×îºóÒ»´ÎÒÆ¶¯
-		return XMoveMouseRelative(nextXMove+XPositionShuffle(),nextYMove+XPositionShuffle()) 
-	end
-	--´¦ÓÚÒ»´ÎÒÆ¶¯×îÐ¡·¶Î§ÄÚ
-	if XMoveMouseRelative(nextXMove,nextYMove)==false then return false end
-	if XSleep(mSleep)==false then return false end
-	if XMoveMouseTo(dx,dy)==false then return false end
-end
-
-function XPressAndReleaseMouseButton(button)
-	if (XAbortLoop(abortButton)) then
-		XAbortMacro()
-		return false
-	end
-	if XPressMouseButton(button)==false then return false end
-	if XSleep(XTimeShuffle())==false then
-		XReleaseMouseButton(button) --±ØÐërelease
-		return false
-	end
-	XReleaseMouseButton(button) --±ØÐërelease
-	if XSleep(XTimeShuffle())==false then return false end
-end
-
-function XMoveMouseWheel(range)
-	if (XAbortLoop(abortButton)) then
-		XAbortMacro()
-		return false
-	end
-	local px,py=GetMousePosition()
-	local dy=py-range
-	if (dy>65535) then
-		dy=65534
-	end
-	if (dy<0) then
-		dy=0
-	end
-	if XMoveMouseTo(px,dy)==false then return false end
-	if XPressMouseButton(1)==false then
-		XReleaseMouseButton(1) --±ØÐërelease
-		return false
-	end
-	if XMoveMouseTo(px,py)==false then
-		XReleaseMouseButton(1) --±ØÐërelease
-		return false
-	end
-	XReleaseMouseButton(1) --±ØÐërelease
-end
-
-function XPressMouseButton(button)
-	--XAbortMacroÔªº¯Êý,½öµ÷ÓÃLogitech API¼°×ÔÉí,Î´µ÷ÓÃÆäËüXÏµÁÐº¯Êý
-	if (XAbortLoop(abortButton)) then
-		XAbortMacro()
-		return false
-	end
-	PressMouseButton(button)
-end
-
-function XReleaseMouseButton(button)
-	--XAbortMacroÔªº¯Êý,½öµ÷ÓÃLogitech API¼°×ÔÉí,Î´µ÷ÓÃÆäËüXÏµÁÐº¯Êý
-	ReleaseMouseButton(button) --±ØÐërelease
-end
-
---ÒÔÏÂÎªÄÚÖÃº¯Êý
-XPositionShuffle=function()
-	local range=30
-	return math.random()*range*2-range
-end
---¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡üMOUSE¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü--
 --¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ýPURCHASEBASIC¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý--
 PRESS_WANTED_CATEGORY,PRESS_REFRESH_TOKEN,PRESS_WANTED_ITEM,PRESS_BUYING_ITEM,ADD_NUMBER,PURCHASE,PURCHASE_CONFIRM,CANCEL_SUBSTITUTION=1,2,3,4,5,6,7,8
 pressWantedCategory={px=9665,py=22898}
@@ -272,7 +96,7 @@ cancelSubstitution={px=22744,py=44824}
 buyingNumber=3 --Ò»´ÎÂò3¸ö
 funcDoClearBasic=function()
 	status=nil
-	Sleep(XTimeShuffle()) --Ë¯ÃßÒ»¶ÎÊ±¼ä,·ÀÖ¹ÏÂ´Î²Ù×÷Ö±½ÓÈëÁÐ
+	Sleep(XTimeShuffle()*2) --Ë¯ÃßÒ»¶ÎÊ±¼ä,·ÀÖ¹ÏÂ´Î²Ù×÷Ö±½ÓÈëÁÐ
 end
 function SwiftBuying()
 	positionValid=true
@@ -301,26 +125,27 @@ function SwiftBuying()
 end
 
 function XWaitMicroTime()
-	XSleep(XTimeShuffle()/4)
+	return XSleep(XTimeShuffle()/4)
 end
 
 function XWaitShortTime()
-	XSleep(XTimeShuffle())
+	return XSleep(XTimeShuffle())
 end
 
 function XWaitLongTime()
-	XSleep(XTimeShuffle()*5)
+	return XSleep(XTimeShuffle()*5)
 end
 
 function XMoveMouseToPosition(tab,sleepFunc)
 	if tab==nil then return false end
 	if (XAbortLoop(abortButton)) then
+		OutputLogMessage("XAbortMacro while [XMoveMouseToPosition] "..GetDate().."\n")
 		XAbortMacro()
 		return false
 	end
 	if XMoveMouseTo(tab.px,tab.py)==false then return false end
 	if sleepFunc~=nil then
-		sleepFunc()
+		return sleepFunc()
 	end
 end
 
@@ -338,3 +163,186 @@ function CheckPositionValid(tab)
 	end
 end
 --¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡üPURCHASEBASIC¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü--
+--¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ýMOUSE¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý--
+function XMoveMouseRelative(mx,my)
+	--¾¡Á¿²»ÒªÔÚºêÖÐµ¥¶Áµ÷ÓÃ´Ëº¯Êý
+	if XAbortLoop(abortButton) then
+		OutputLogMessage("XAbortMacro while [XMoveMouseRelative] "..GetDate().."\n")
+		XAbortMacro()
+		return false
+	end
+	local px,py=GetMousePosition()
+	local lastStep=false
+	local nextXMove,nextYMove
+	if (math.abs(mx)<=mRange and math.abs(my)<=mRange) then lastStep=true end --Ò»´ÎÒÆ¶¯¼´¿Éµ½´ïÖÕµã,²»ÔÙµÝ¹é
+	if math.abs(mx)<=mRange then nextXMove=mx else nextXMove=mx*mRange/math.abs(mx) end
+	if math.abs(my)<=mRange then nextYMove=my else nextYMove=my*mRange/math.abs(my) end
+	--±ß½çÅÐ¶Ï,²»¿É³¬³ö±ß½ç
+	local nextXPos=px+nextXMove
+	local nextYPos=py+nextYMove
+	if (nextXPos<0) then nextXPos=0 end
+	if (nextXPos>65535) then nextXPos=65535 end
+	if (nextYPos<0) then nextYPos=0 end
+	if (nextYPos>65535) then nextYPos=65535 end
+	MoveMouseTo(nextXPos,nextYPos)
+	if lastStep then return end
+	if XSleep(mSleep)==false then return false end
+	if XMoveMouseRelative(mx-nextXMove,my-nextYMove)==false then return false end
+end
+
+function XMoveMouseTo(dx,dy)
+	if (XAbortLoop(abortButton)) then
+		OutputLogMessage("XAbortMacro while [XMoveMouseTo] "..GetDate().."\n")
+		XAbortMacro()
+		return false
+	end
+	if (dx==nil or dy==nil or dx<0 or dx>65535 or dy<0 or dy>65535) then
+		return false
+	end
+	local px,py=GetMousePosition()
+	local mx,my=dx-px,dy-py
+	local lastStep=false
+	local nextXMove,nextYMove
+	if (math.abs(mx)<=mRange and math.abs(my)<=mRange) then lastStep=true end
+	if math.abs(mx)<=mRange then nextXMove=mx else nextXMove=mx*mRange/math.abs(mx) end
+	if math.abs(my)<=mRange then nextYMove=my else nextYMove=my*mRange/math.abs(my) end
+	if lastStep then 
+		--×îºóÒ»´ÎÒÆ¶¯
+		return XMoveMouseRelative(nextXMove+XPositionShuffle(),nextYMove+XPositionShuffle()) 
+	end
+	--´¦ÓÚÒ»´ÎÒÆ¶¯×îÐ¡·¶Î§ÄÚ
+	if XMoveMouseRelative(nextXMove,nextYMove)==false then return false end
+	if XSleep(mSleep)==false then return false end
+	if XMoveMouseTo(dx,dy)==false then return false end
+end
+
+function XPressAndReleaseMouseButton(button)
+	if (XAbortLoop(abortButton)) then
+		OutputLogMessage("XAbortMacro while [XPressAndReleaseMouseButton] "..GetDate().."\n")
+		XAbortMacro()
+		return false
+	end
+	if XPressMouseButton(button)==false then return false end
+	if XSleep(XTimeShuffle())==false then
+		XReleaseMouseButton(button) --±ØÐërelease
+		return false
+	end
+	XReleaseMouseButton(button) --±ØÐërelease
+	if XSleep(XTimeShuffle())==false then return false end
+end
+
+function XMoveMouseWheel(range)
+	if (XAbortLoop(abortButton)) then
+		OutputLogMessage("XAbortMacro while [XMoveMouseWheel] "..GetDate().."\n")
+		XAbortMacro()
+		return false
+	end
+	local px,py=GetMousePosition()
+	local dy=py-range
+	if (dy>65535) then
+		dy=65534
+	end
+	if (dy<0) then
+		dy=0
+	end
+	if XMoveMouseTo(px,dy)==false then return false end
+	if XPressMouseButton(1)==false then
+		XReleaseMouseButton(1) --±ØÐërelease
+		return false
+	end
+	if XMoveMouseTo(px,py)==false then
+		XReleaseMouseButton(1) --±ØÐërelease
+		return false
+	end
+	XReleaseMouseButton(1) --±ØÐërelease
+end
+
+function XPressMouseButton(button)
+	--XAbortMacroÔªº¯Êý,½öµ÷ÓÃLogitech API¼°×ÔÉí,Î´µ÷ÓÃÆäËüXÏµÁÐº¯Êý
+	if (XAbortLoop(abortButton)) then
+		OutputLogMessage("XAbortMacro while [XPressMouseButton] "..GetDate().."\n")
+		XAbortMacro()
+		return false
+	end
+	PressMouseButton(button)
+end
+
+function XReleaseMouseButton(button)
+	--XAbortMacroÔªº¯Êý,½öµ÷ÓÃLogitech API¼°×ÔÉí,Î´µ÷ÓÃÆäËüXÏµÁÐº¯Êý
+	ReleaseMouseButton(button) --±ØÐërelease
+end
+
+--ÒÔÏÂÎªÄÚÖÃº¯Êý
+XPositionShuffle=function()
+	local range=30
+	return math.random()*range*2-range
+end
+--¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡üMOUSE¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü--
+--¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ýBASIC¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý¡ý--
+MIDDLE,BACKWARD,FORWARD=3,4,5
+abortButton=BACKWARD --ÎªÕýÊýÊ±,±íÊ¾°´ÏÂÔòÍ£Ö¹;Îª¸ºÊýÊ±,±íÊ¾·Å¿ªÔòÍ£Ö¹
+mRange=1500
+mSleep=5
+mRunning=false
+funcDoClear=nil
+funcAbortLoop=nil --¶¨ÖÆÌø³öºê
+maxSleepInterval=5
+math.randomseed(GetDate("%I%M%S")+0)
+function XPlayMacro(macro)
+	if mRunning then
+		return false
+	end
+	mRunning=true
+	PlayMacro(macro)
+	OutputLogMessage("XPlayMacro "..GetDate().."\n")
+end
+function XAbortMacro()
+	--¾¡Á¿²»ÒªÔÚºêÖÐµ¥¶Àµ÷ÓÃ´Ëº¯Êý;ÃÝµÈ;±£Ö¤Ã¿´ÎÍË³öÊ±,´Ëº¯ÊýÖ»Ö´ÐÐÒ»´Î
+	AbortMacro()
+	mRunning=false
+	if (funcDoClear~=nil) then 
+		funcDoClear() 
+	end
+	--OutputLogMessage("XAbortMacro "..GetDate().."\n")
+end
+function XAbortLoop(button)
+	local doAbort
+	if funcAbortLoop~=nil and funcAbortLoop()==true then
+		doAbort=true
+	end
+	if mRunning==false then 
+		doAbort=true 
+	end
+	if (button~=nil and button>0) then
+		if IsMouseButtonPressed(button) then doAbort=true end
+	end
+	if (button~=nil and button<0) then
+		if IsMouseButtonPressed(-button)==false then doAbort=true end
+	end
+	if doAbort then
+		--´Ëº¯ÊýÖ»½øÐÐÅÐ¶Ï,ÕæÕýÌø³öºêÐèÒªÔÙ´Îµ÷ÓÃXAbortMacro
+		--OutputLogMessage("XAbortLoop "..GetDate().."\n")
+		return true
+	end
+end
+function PrintPosition()
+	local px,py=GetMousePosition()
+	OutputLogMessage("(%s,%s) %s\n",""..px,""..py,GetDate().."")
+end
+function XSleep(millis)
+	--XAbortMacroÔªº¯Êý,½öµ÷ÓÃLogitech API¼°×ÔÉí,Î´µ÷ÓÃÆäËüXÏµÁÐº¯Êý
+	if (XAbortLoop(abortButton)) then
+		OutputLogMessage("XAbortMacro while [XSleep] "..GetDate().."\n")
+		XAbortMacro()
+		return false
+	end
+	if (millis>maxSleepInterval) then
+		Sleep(maxSleepInterval)
+		return XSleep(millis-maxSleepInterval)
+	end
+	Sleep(millis)
+end
+XTimeShuffle=function()
+	return 50+math.random()*50
+end
+--¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡üBASIC¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü--

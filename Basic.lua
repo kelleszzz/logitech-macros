@@ -41,7 +41,7 @@ function XAbortLoop(button)
 	end
 	if doAbort then
 		--此函数只进行判断,真正跳出宏需要再次调用XAbortMacro
-		OutputLogMessage("XAbortLoop "..GetDate().."\n")
+		--OutputLogMessage("XAbortLoop "..GetDate().."\n")
 		return true
 	end
 end
@@ -52,6 +52,7 @@ end
 function XSleep(millis)
 	--XAbortMacro元函数,仅调用Logitech API及自身,未调用其它X系列函数
 	if (XAbortLoop(abortButton)) then
+		OutputLogMessage("XAbortMacro while [XSleep] "..GetDate().."\n")
 		XAbortMacro()
 		return false
 	end
