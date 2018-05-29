@@ -309,15 +309,23 @@ function XAbortLoop(button)
 	local doAbort
 	if funcAbortLoop~=nil and funcAbortLoop()==true then
 		doAbort=true
+		OutputLogMessage("XAbortLoop for [funcAbortLoop]"..GetDate().."\n")
 	end
 	if mRunning==false then 
 		doAbort=true 
+		OutputLogMessage("XAbortLoop for [mRunning]"..GetDate().."\n")
 	end
 	if (button~=nil and button>0) then
-		if IsMouseButtonPressed(button) then doAbort=true end
+		if IsMouseButtonPressed(button) then 
+			doAbort=true 
+			OutputLogMessage("XAbortLoop for [abortButton"..button.."]"..GetDate().."\n")
+		end
 	end
 	if (button~=nil and button<0) then
-		if IsMouseButtonPressed(-button)==false then doAbort=true end
+		if IsMouseButtonPressed(-button)==false then 
+			doAbort=true 
+			OutputLogMessage("XAbortLoop for [abortButton"..button.."]"..GetDate().."\n")
+		end
 	end
 	if doAbort then
 		--此函数只进行判断,真正跳出宏需要再次调用XAbortMacro

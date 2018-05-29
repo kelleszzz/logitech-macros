@@ -31,8 +31,10 @@ function OnEvent(event, arg)
 		elseif status==PRESS_WANTED_ITEM then
 			pressWantedItem.px=px
 			pressWantedItem.py=py
-			OutputLogMessage("[Wanted Item] = (%s,%s) ----> [Buying Item] \n",""..px,""..py)
-			status=PRESS_BUYING_ITEM
+			--OutputLogMessage("[Wanted Item] = (%s,%s) ----> [Buying Item] \n",""..px,""..py)
+			OutputLogMessage("[Wanted Item] = (%s,%s) ----> [Restart - Wanted Category] \n",""..px,""..py)
+			--status=PRESS_BUYING_ITEM
+			status=PRESS_WANTED_CATEGORY
 		elseif status==PRESS_BUYING_ITEM then
 			pressBuyingItem.px=px
 			pressBuyingItem.py=py

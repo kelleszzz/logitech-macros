@@ -1,43 +1,24 @@
---↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓MOUSE↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓--
-function XWaitMicroTime()
-	return XSleep(XTimeShuffle()/4)
-end
-
-function XWaitShortTime()
-	return XSleep(XTimeShuffle())
-end
-
-function XWaitLongTime()
-	return XSleep(XTimeShuffle()*5)
-end
-
-function XMoveMouseToPosition(tab,sleepFunc)
-	if tab==nil then return false end
-	if (XAbortLoop(abortButton)) then
-		OutputLogMessage("XAbortMacro while [XMoveMouseToPosition] "..GetDate().."\n")
+function OnEvent(event, arg)
+	funcDoClear=function()
+		XReleaseMouseButton(1)
+	end
+	if (event == "MOUSE_BUTTON_PRESSED" and arg == FORWARD) then --当鼠标前进键按下时
+		if XPlayMacro("LongClick")==false then return end
+		Sleep(10) --等待IsMouseButtonPressed状态改变
+		while mRunning==true do
+			XPressMouseButton(1)
+			XSleep(500)
+			XReleaseMouseButton(1)
+		end
 		XAbortMacro()
-		return false
 	end
-	if XMoveMouseTo(tab.px,tab.py)==false then return false end
-	if sleepFunc~=nil then
-		return sleepFunc()
+	if (event == "MOUSE_BUTTON_PRESSED" and arg == 3) then --当鼠标中键按下时
+		PrintPosition()
 	end
 end
 
-function ResetPosition(tab)
-	if tab==nil then return end
-	tab.px=nil
-	tab.py=nil
-end
 
-function CheckPositionValid(tab)
-	if tab~=nil and tab.px~=nil and tab.py~=nil then
-		return true
-	else
-		return false
-	end
-end
-
+--↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓MOUSE↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓--
 function XMoveMouseRelative(mx,my)
 	--尽量不要在宏中单读调用此函数
 	if XAbortLoop(abortButton) then
@@ -152,4 +133,71 @@ XPositionShuffle=function()
 	return math.random()*range*2-range
 end
 --↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑MOUSE↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑--
-
+--↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓BASIC↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓--
+MIDDLE,BACKWARD,FORWARD=3,4,5
+abortButton=BACKWARD --为正数时,表示按下则停止;为负数时,表示放开则停止
+mRange=1500
+mSleep=5
+mRunning=false
+funcDoClear=nil
+funcAbortLoop=nil --定制跳出宏
+maxSleepInterval=5
+math.randomseed(GetDate("%I%M%S")+0)
+function XPlayMacro(macro)
+	if mRunning then
+		return false
+	end
+	mRunning=true
+	PlayMacro(macro)
+	OutputLogMessage("XPlayMacro "..GetDate().."\n")
+end
+function XAbortMacro()
+	--尽量不要在宏中单独调用此函数;幂等;保证每次退出时,此函数只执行一次
+	AbortMacro()
+	mRunning=false
+	if (funcDoClear~=nil) then 
+		funcDoClear() 
+	end
+	--OutputLogMessage("XAbortMacro "..GetDate().."\n")
+end
+function XAbortLoop(button)
+	local doAbort
+	if funcAbortLoop~=nil and funcAbortLoop()==true then
+		doAbort=true
+	end
+	if mRunning==false then 
+		doAbort=true 
+	end
+	if (button~=nil and button>0) then
+		if IsMouseButtonPressed(button) then doAbort=true end
+	end
+	if (button~=nil and button<0) then
+		if IsMouseButtonPressed(-button)==false then doAbort=true end
+	end
+	if doAbort then
+		--此函数只进行判断,真正跳出宏需要再次调用XAbortMacro
+		--OutputLogMessage("XAbortLoop "..GetDate().."\n")
+		return true
+	end
+end
+function PrintPosition()
+	local px,py=GetMousePosition()
+	OutputLogMessage("(%s,%s) %s\n",""..px,""..py,GetDate().."")
+end
+function XSleep(millis)
+	--XAbortMacro元函数,仅调用Logitech API及自身,未调用其它X系列函数
+	if (XAbortLoop(abortButton)) then
+		OutputLogMessage("XAbortMacro while [XSleep] "..GetDate().."\n")
+		XAbortMacro()
+		return false
+	end
+	if (millis>maxSleepInterval) then
+		Sleep(maxSleepInterval)
+		return XSleep(millis-maxSleepInterval)
+	end
+	Sleep(millis)
+end
+XTimeShuffle=function()
+	return 50+math.random()*50
+end
+--↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑BASIC↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑--

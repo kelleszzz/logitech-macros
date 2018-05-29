@@ -1,20 +1,22 @@
 --仅改变购买某一种碎片时的坐标点,全屏状态下的不可定制
-qingLong={px=31726,py=24113}
-baiHu={px=47367,py=23870}
-zhuQue={px=32067,py=32798}
-xuanWu={px=47606,py=32737}
-blankArea={px=32785,py=11115}
+firstItem={px=31726,py=24113}
+secondItem={px=47367,py=23870}
+thirdItem={px=32067,py=32798}
+forthItem={px=47606,py=32737}
+fifthItem={px=31931,py=41362}
+sixthItem={px=46923,py=41422}
+blankArea={px=32375,py=7957}
+wantedCategories=4 --一次购买多少个关注物品
+currentWantedCategories=wantedCategories
 status=nil
 enableSwiftBuying=true
 skipBackwardOnce=false --按下前进键刷新时,如果再按下了后退键,后退键也会入队执行一次宏,现在需要将这次不必要的执行跳过
-genericBuying=true --是否对所有碎片尝试购买,还是专注于购买一种碎片
 function OnEvent(event, arg)
 	--配置
 	buyingNumber=3 --一次买3个
-	mRange=1000
+	wantedCategories=4
+	mRange=3000
 	mSleep=2
-	pressWantedCategory={px=9801,py=30125}
-	pressRefreshToken={px=9665,py=22898}
 	abortButton=nil
 	funcDoClear=funcDoClearBasic
 	--逻辑
@@ -48,50 +50,12 @@ function OnEvent(event, arg)
 		--XAbortMacro()
 	end
 	if (event == "MOUSE_BUTTON_PRESSED" and arg == MIDDLE) then --当鼠标中键按下时
-		local px,py=GetMousePosition()
-		if status==nil then status=PRESS_WANTED_ITEM end
-		if status==PRESS_WANTED_CATEGORY then 
-			pressWantedCategory.px=px
-			pressWantedCategory.py=py
-			OutputLogMessage("[Wanted Category] = (%s,%s) ----> [Refresh-Token] \n",""..px,""..py)
-			status=PRESS_REFRESH_TOKEN 
-		elseif status==PRESS_REFRESH_TOKEN then
-			pressRefreshToken.px=px
-			pressRefreshToken.py=py
-			OutputLogMessage("[Refresh-Token] = (%s,%s) ----> [Wanted Item] \n",""..px,""..py)
-			status=PRESS_WANTED_ITEM
-		elseif status==PRESS_WANTED_ITEM then
-			pressWantedItem.px=px
-			pressWantedItem.py=py
-			OutputLogMessage("[Wanted Item] = (%s,%s) ----> [Buying Item] \n",""..px,""..py)
-			--status=PRESS_BUYING_ITEM
-			status=nil
-		elseif status==PRESS_BUYING_ITEM then
-			pressBuyingItem.px=px
-			pressBuyingItem.py=py
-			OutputLogMessage("[Buying Item] = (%s,%s) ----> [Add Number] \n",""..px,""..py)
-			status=ADD_NUMBER
-		elseif status==ADD_NUMBER then
-			addNumber.px=px
-			addNumber.py=py
-			OutputLogMessage("[Add Number] = (%s,%s) ----> [Purchase] \n",""..px,""..py)
-			status=PURCHASE
-		elseif status==PURCHASE then
-			purchase.px=px
-			purchase.py=py
-			OutputLogMessage("[Purchase] = (%s,%s) ----> [Purchase Confirm] \n",""..px,""..py)
-			status=PURCHASE_CONFIRM
-		elseif status==PURCHASE_CONFIRM then
-			purchaseConfirm.px=px
-			purchaseConfirm.py=py
-			--自动计算出取消用元宝代替按钮位置
-			cancelSubstitution.px=2*purchase.px-purchaseConfirm.px
-			cancelSubstitution.py=purchase.py
-			OutputLogMessage("[Purchase Confirm] = (%s,%s) ----> [Restart - Wanted Category] \n",""..px,""..py)
-			status=PRESS_WANTED_CATEGORY
-		else
-			PrintPosition()
+		currentWantedCategories=currentWantedCategories-1
+		if currentWantedCategories==0 then
+			currentWantedCategories=wantedCategories
 		end
+		OutputLogMessage("Current Wanted Categories = "..wantedCategories.."\n")
+		PrintPosition()
 	end
 end
 
@@ -107,23 +71,21 @@ function PreBuying()
 		if XPressAndReleaseMouseButton(1)==false then return false end
 		if XMoveMouseToPosition(pressWantedCategory,XWaitLongTime)==false then return false end
 		if XPressAndReleaseMouseButton(1)==false then return false end
-		if genericBuying==true then
-			if PressOneItemAndPressBlankArea(qingLong)==false then return false end
-			if PressOneItemAndPressBlankArea(baiHu)==false then return false end
-			if PressOneItemAndPressBlankArea(zhuQue)==false then return false end
-			if PressOneItemAndPressBlankArea(xuanWu)==false then return false end
-		else
-			if XMoveMouseToPosition(pressWantedItem,XWaitShortTime)==false then return false end
-			if XPressAndReleaseMouseButton(1)==false then return false end
-		end
+		if PressOneItemAndPressBlankArea(firstItem,1,currentWantedCategories)==false then return false end
+		if PressOneItemAndPressBlankArea(secondItem,2,currentWantedCategories)==false then return false end
+		if PressOneItemAndPressBlankArea(thirdItem,3,currentWantedCategories)==false then return false end
+		if PressOneItemAndPressBlankArea(forthItem,4,currentWantedCategories)==false then return false end
+		if PressOneItemAndPressBlankArea(fifthItem,5,currentWantedCategories)==false then return false end
+		if PressOneItemAndPressBlankArea(sixthItem,6,currentWantedCategories)==false then return false end
 	else
 		OutputLogMessage("Not all the positions are valid.\n")
 		return false
 	end
 end
 
-function PressOneItemAndPressBlankArea(tab)
+function PressOneItemAndPressBlankArea(tab,rank,currentWantedCategories)
 	if (CheckPositionValid(tab)==false) then return end --允许为空
+	if rank>currentWantedCategories then return end
 	if XMoveMouseToPosition(tab,XWaitMicroTime)==false then return false end
 	if XPressAndReleaseMouseButton(1)==false then return false end
 	if XMoveMouseToPosition(blankArea,XWaitMicroTime)==false then return false end
